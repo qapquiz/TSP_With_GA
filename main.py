@@ -1,6 +1,7 @@
 from Town import Town
 from costMatrix import CostMatrix
 from salesMan import SalesMan
+import random
 #import matplotlib.pyplot as plt
 
 #initial variable for Genetic Algorithm
@@ -31,11 +32,20 @@ for i in range(20):
 #start iteration
 iteration = 1
 
-#crossover population
+while iteration <= MAX_ITERATION:
+	#crossover population
+	population_count = 0
+	while population_count < len(populationList)-2:
+		#occur crossover?
+		if random.uniform(0, 1) < PC:
+			#occur crossover
+			
+		else:
+			#dont occur crossover
 
-#mutation population
+	#mutation population
 
-#get rid of chromosome has lower fitness than the other
+	#get rid of chromosome has lower fitness than the other
 
 #end iteration
 
