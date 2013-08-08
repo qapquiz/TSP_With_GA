@@ -5,7 +5,7 @@ import random
 #import matplotlib.pyplot as plt
 
 #initial variable for Genetic Algorithm
-MAX_ITERATION = 3000
+MAX_ITERATION = 1000
 MAX_POPULATION = 20
 PC = 0.8
 PM = 0.05
@@ -31,7 +31,6 @@ for i in range(20):
 
 #start iteration
 iteration = 1
-
 while iteration <= MAX_ITERATION:
 	#roulette selection
 	#sort populationList
@@ -44,11 +43,12 @@ while iteration <= MAX_ITERATION:
 	sumProbabilities = 0
 	for population in populationList:
 		population.setProbability(sumProbabilities + ((float(population.getFitness()) / float(sumFitness))))
-		population.setProbability(population.getProbability())
+		sumProbabilities += population.getProbability() - sumProbabilities
+		population.setProbability(1 - population.getProbability())
 		#print "fitness: " + str(population.getFitness())
 		#print "prob: " + str(population.getProbability())
-		sumProbabilities += population.getProbability() - sumProbabilities
 	#selection phase
+	populationList = populationList[::-1]
 	populationIndex = 0
 	populationIndexSelectionList = list()
 	#/2
@@ -56,12 +56,13 @@ while iteration <= MAX_ITERATION:
 		randNumber = random.uniform(0, 1)
 		for population in populationList:
 			if randNumber < population.getProbability():
-				if populationIndex not in populationIndexSelectionList:
-					populationIndexSelectionList.append(populationIndex)
-					break
+				populationIndexSelectionList.append(populationIndex)
+				break
+				#if populationIndex not in populationIndexSelectionList:
+				#	populationIndexSelectionList.append(populationIndex)
+				#	break
 			populationIndex = populationIndex + 1
 		populationIndex = 0
-
 	populationSelectionList = list()
 	#/2
 	for i in range(MAX_POPULATION):
@@ -133,14 +134,14 @@ while iteration <= MAX_ITERATION:
 	#sort populationList
 	populationList = sorted(populationList, key=lambda population: population.fitness)
 	#end sort populationList
-	for population in populationList:
-		print population.getFitness()
+	#for population in populationList:
+	#	print population.getFitness()
 	delIndex = 20
 	while delIndex < len(populationList):
 		del populationList[delIndex]
 	iteration = iteration + 1 
 #end iteration
-for population in populationList:
-	print "final: " + str(population.getFitness())
+print populationList[0].getPath()
+print "Total distance: " + str(populationList[0].getFitness())
 
 #return Answer
