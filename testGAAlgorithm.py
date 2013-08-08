@@ -54,22 +54,35 @@ for population in populationList:
     print "prob: " + str(population.getProbability())
     sumProbabilities += population.getProbability() - sumProbabilities
 
-#selection
+for population in populationList:
+    population.setProbability(1 - population.getProbability())
+    print population.getProbability()
 
+#selection phase
 populationIndex = 0
-populationSelectionList = list()
-while len(populationSelectionList) != 2:
+populationIndexSelectionList = list()
+while len(populationIndexSelectionList) != 2:
     randNumber = random.uniform(0, 1)
     print "randNumber: " + str(randNumber)
     for population in populationList:
         if randNumber < population.getProbability():
-            if populationIndex not in populationSelectionList:
-                populationSelectionList.append(populationIndex)
+            if populationIndex not in populationIndexSelectionList:
+                populationIndexSelectionList.append(populationIndex)
                 break
         populationIndex = populationIndex + 1
     populationIndex = 0
 
-print populationSelectionList
+#prepare populationSeclectionList
+populationSelectionList = list()
+populationSelectionList.append(populationList[populationIndexSelectionList[0]])
+populationSelectionList.append(populationList[populationIndexSelectionList[1]])
+#end prepare populationSelectionList
+
+#crossover
+
+#end crossover
+
+print populationIndexSelectionList
 
 #end roulette selection (Genetic Algorithm) for check crossover
 

@@ -5,9 +5,9 @@ import random
 #import matplotlib.pyplot as plt
 
 #initial variable for Genetic Algorithm
-MAX_ITERATION = 1000
+MAX_ITERATION = 20
 MAX_POPULATION = 20
-PC = 0.7
+PC = 0.9
 PM = 0.05
 
 #create list of object town
@@ -33,20 +33,101 @@ for i in range(20):
 iteration = 1
 
 while iteration <= MAX_ITERATION:
-	#crossover population
-	population_count = 0
-	while population_count < len(populationList)-2:
-		#occur crossover?
-		if random.uniform(0, 1) < PC:
-			#occur crossover
-			
+	#roulette selection
+	#sort populationList
+	populationList = sorted(populationList, key=lambda population: population.fitness)
+	#end sort populationList
+	sumFitness = 0
+	for population in populationList:
+		sumFitness = sumFitness + population.getFitness()
+	probability = 0
+	sumProbabilities = 0
+	for population in populationList:
+		population.setProbability(sumProbabilities + (1 - (float(population.getFitness()) / float(sumFitness))))
+		population.setProbability(1 - population.getProbability())
+		print "fitness: " + str(population.getFitness())
+		print "prob: " + str(population.getProbability())
+		sumProbabilities += population.getProbability() - sumProbabilities
+	for population in populationList:
+		population.setProbability(1 - population.getProbability())
+	populationList = sorted(populationList, key=lambda population: population.probability)
+	#selection phase
+	populationIndex = 0
+	populationIndexSelectionList = list()
+	#/2
+	while (len(populationIndexSelectionList) != MAX_POPULATION):
+		randNumber = random.uniform(0, 1)
+		for population in populationList:
+			if randNumber < population.getProbability():
+				if populationIndex not in populationIndexSelectionList:
+					populationIndexSelectionList.append(populationIndex)
+					break
+			populationIndex = populationIndex + 1
+		populationIndex = 0
+
+	populationSelectionList = list()
+	#/2
+	for i in range(MAX_POPULATION):
+		populationSelectionList.append(populationList[populationIndexSelectionList[i]])
+	print "SelectionList: " + str(populationIndexSelectionList)
+	#end selection phase
+	#crossover phase
+	crossoverCount = 0
+	while crossoverCount < (MAX_POPULATION):
+		parent1 = populationSelectionList[crossoverCount]
+		parent2 = populationSelectionList[crossoverCount+1]
+		#occur crossover
+		if random.randint(0, 1) < PC:
+			child1 = SalesMan()
+			child2 = SalesMan()
+			#child1
+			child1.setPath(parent1.getPath()[:100])
+			while len(child1.getPath()) != len(townList):
+				parent2Path = parent2.getPath()
+				for town in parent2Path:
+					if town not in child1.getPath():
+						child1.getPath().append(town)
+			#child2
+			child2.setPath(parent2.getPath()[:100])
+			while len(child2.getPath()) != len(townList):
+				parent1Path = parent1.getPath()
+				for town in parent1Path:
+					if town not in child2.getPath():
+						child2.getPath().append(town)
+			populationList.append(child1)
+			populationList.append(child2)
+		#not occur crossover then copy parent to child
 		else:
-			#dont occur crossover
-
-	#mutation population
-
-	#get rid of chromosome has lower fitness than the other
-
+			child1 = SalesMan()
+			child2 = SalesMan()
+			child1.setPath(parent1.getPath())
+			child1.setFitness(parent1.getFitness())
+			child2.setPath(parent2.getPath())
+			child2.setFitness(parent2.getFitness())
+			populationList.append(child1)
+			populationList.append(child2)
+		crossoverCount = crossoverCount + 2
+ 	#end crossover phase
+	#end roulette selection
+	print "len of populationList: " + str(len(populationList))
+	calculateFitnessCount = 20
+	while calculateFitnessCount < len(populationList):
+		populationList[calculateFitnessCount].calculateFitness(costMatrixDict, townList)
+		calculateFitnessCount = calculateFitnessCount + 1
+	#sort populationList
+	populationList = sorted(populationList, key=lambda population: population.fitness)
+	#end sort populationList
+	for population in populationList:
+		print population.getFitness()
+	delIndex = 20
+	while delIndex < len(populationList):
+		del populationList[delIndex]
+	#mutation
+	mutationRand = random.uniform(0, 1)
+	#end mutation
+	iteration = iteration + 1 
 #end iteration
+for population in populationList:
+	print "final: " + str(population.getFitness())
 
 #return Answer
