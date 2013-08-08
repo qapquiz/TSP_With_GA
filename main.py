@@ -5,9 +5,9 @@ import random
 #import matplotlib.pyplot as plt
 
 #initial variable for Genetic Algorithm
-MAX_ITERATION = 20
+MAX_ITERATION = 3000
 MAX_POPULATION = 20
-PC = 0.9
+PC = 0.8
 PM = 0.05
 
 #create list of object town
@@ -43,14 +43,11 @@ while iteration <= MAX_ITERATION:
 	probability = 0
 	sumProbabilities = 0
 	for population in populationList:
-		population.setProbability(sumProbabilities + (1 - (float(population.getFitness()) / float(sumFitness))))
-		population.setProbability(1 - population.getProbability())
-		print "fitness: " + str(population.getFitness())
-		print "prob: " + str(population.getProbability())
+		population.setProbability(sumProbabilities + ((float(population.getFitness()) / float(sumFitness))))
+		population.setProbability(population.getProbability())
+		#print "fitness: " + str(population.getFitness())
+		#print "prob: " + str(population.getProbability())
 		sumProbabilities += population.getProbability() - sumProbabilities
-	for population in populationList:
-		population.setProbability(1 - population.getProbability())
-	populationList = sorted(populationList, key=lambda population: population.probability)
 	#selection phase
 	populationIndex = 0
 	populationIndexSelectionList = list()
@@ -69,7 +66,7 @@ while iteration <= MAX_ITERATION:
 	#/2
 	for i in range(MAX_POPULATION):
 		populationSelectionList.append(populationList[populationIndexSelectionList[i]])
-	print "SelectionList: " + str(populationIndexSelectionList)
+	#print "SelectionList: " + str(populationIndexSelectionList)
 	#end selection phase
 	#crossover phase
 	crossoverCount = 0
@@ -77,7 +74,7 @@ while iteration <= MAX_ITERATION:
 		parent1 = populationSelectionList[crossoverCount]
 		parent2 = populationSelectionList[crossoverCount+1]
 		#occur crossover
-		if random.randint(0, 1) < PC:
+		if random.uniform(0, 1) < PC:
 			child1 = SalesMan()
 			child2 = SalesMan()
 			#child1
@@ -107,13 +104,32 @@ while iteration <= MAX_ITERATION:
 			populationList.append(child1)
 			populationList.append(child2)
 		crossoverCount = crossoverCount + 2
+	#print "========================================================================="
+	#print child1.getPath()
+	child1.calculateFitness(costMatrixDict, townList)
+	#print child1.getFitness()
  	#end crossover phase
 	#end roulette selection
-	print "len of populationList: " + str(len(populationList))
+	#print "len of populationList: " + str(len(populationList))
 	calculateFitnessCount = 20
 	while calculateFitnessCount < len(populationList):
 		populationList[calculateFitnessCount].calculateFitness(costMatrixDict, townList)
 		calculateFitnessCount = calculateFitnessCount + 1
+	mutationIndex = 0
+	for population in populationList:
+		if mutationIndex >= 20:
+			pathIndex = 0
+			pathIndexList = list()
+			for path in population.getPath():
+				if random.uniform(0, 1) < PM:
+					pathIndexList.append(pathIndex)
+					if len(pathIndexList) == 2:
+						temp = population.getPath()[pathIndexList[0]]
+						population.getPath()[pathIndexList[0]] = population.getPath()[pathIndexList[1]]
+						population.getPath()[pathIndexList[1]] = temp
+						pathIndexList = list()
+				pathIndex = pathIndex + 1
+		mutationIndex = mutationIndex + 1
 	#sort populationList
 	populationList = sorted(populationList, key=lambda population: population.fitness)
 	#end sort populationList
@@ -122,9 +138,6 @@ while iteration <= MAX_ITERATION:
 	delIndex = 20
 	while delIndex < len(populationList):
 		del populationList[delIndex]
-	#mutation
-	mutationRand = random.uniform(0, 1)
-	#end mutation
 	iteration = iteration + 1 
 #end iteration
 for population in populationList:

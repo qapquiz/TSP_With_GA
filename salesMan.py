@@ -31,6 +31,7 @@ class SalesMan():
 		return self.path
 
 	def calculateFitness(self, costMatrixDict, townList):
+		self.fitness = 0
 		pathIndex = 0
 		while pathIndex <= len(townList) - 2:
 			self.fitness = self.fitness + costMatrixDict[int(self.path[pathIndex])][int(self.path[pathIndex+1])]
